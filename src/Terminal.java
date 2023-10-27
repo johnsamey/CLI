@@ -1,3 +1,5 @@
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class Terminal {
@@ -12,8 +14,9 @@ public class Terminal {
     public void echo(String[] args) {
         System.out.println(String.join(" ", args));
     }
-    public String pwd() {
-        return "Current directory: " + System.getProperty("user.dir");
+    public void pwd() {
+        Path currentPath = Paths.get("").toAbsolutePath();
+        System.out.println("Current directory: " +currentPath.toString());
     }
 
     //john
