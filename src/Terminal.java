@@ -23,10 +23,12 @@ public class Terminal {
     //john
     public void cd(String[] args) {
         if (args.length == 0) {
+
             String homeDirectory = System.getProperty("user.home");
             System.setProperty("user.dir", homeDirectory);
         } else if (args.length == 1) {
             if (args[0].equals("..")) {
+
                 String currentPath = System.getProperty("user.dir");
                 String parent = new File(currentPath).getParent();
                 if (parent != null) {
@@ -35,12 +37,23 @@ public class Terminal {
                     System.out.println("Already at the root directory");
                 }
             } else {
+
                 String newPath = args[0];
                 File file = new File(newPath);
                 if (file.exists() && file.isDirectory()) {
-                    System.setProperty("user.dir", file.getAbsolutePath());
+                    System.out.println(file.getPath()+"\\");
+                    System.setProperty("user.dir", file.getPath()+"\\");
                 } else {
-                    System.out.println("Invalid path");
+                    // Search for the directory if the complete path is not provided
+                    File currentDirectory = new File(System.getProperty("user.dir"));
+                    File[] matchingDirectories = currentDirectory.listFiles(
+                            pathname -> pathname.isDirectory() && pathname.getName().equals(args[0])
+                    );
+                    if (matchingDirectories != null && matchingDirectories.length > 0) {
+                        System.setProperty("user.dir", matchingDirectories[0].getPath()+"\\");
+                    } else {
+                        System.out.println("Directory not found");
+                    }
                 }
             }
         } else {
