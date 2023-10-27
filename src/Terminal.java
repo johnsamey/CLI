@@ -17,8 +17,7 @@ public class Terminal {
         System.out.println(String.join(" ", args));
     }
     public void pwd() {
-        Path currentPath = Paths.get("").toAbsolutePath();
-        System.out.println("Current directory: " +currentPath.toString());
+        System.out.println("Current directory: " + System.getProperty("user.dir"));
     }
 
     //john
