@@ -1,3 +1,4 @@
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
@@ -21,6 +22,30 @@ public class Terminal {
 
     //john
     public void cd(String[] args) {
+        if (args.length == 0) {
+            String homeDirectory = System.getProperty("user.home");
+            System.setProperty("user.dir", homeDirectory);
+        } else if (args.length == 1) {
+            if (args[0].equals("..")) {
+                String currentPath = System.getProperty("user.dir");
+                String parent = new File(currentPath).getParent();
+                if (parent != null) {
+                    System.setProperty("user.dir", parent);
+                } else {
+                    System.out.println("Already at the root directory");
+                }
+            } else {
+                String newPath = args[0];
+                File file = new File(newPath);
+                if (file.exists() && file.isDirectory()) {
+                    System.setProperty("user.dir", file.getAbsolutePath());
+                } else {
+                    System.out.println("Invalid path");
+                }
+            }
+        } else {
+            System.out.println("Invalid arguments for cd command");
+        }
     }
     //abdo ls and ls -r
     public void ls(){

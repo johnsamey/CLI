@@ -6,10 +6,10 @@ public class Main {
         Terminal terminal = new Terminal();
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.print("Enter command: ");
+            String currentDirectory = System.getProperty("user.dir");
+            System.out.print(currentDirectory + "> ");
             String input = scanner.nextLine();
             if (input.equals("exit")) {
-
                 break;
             }
             if (!terminal.getParser().parse(input)) {
