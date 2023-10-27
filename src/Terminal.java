@@ -1,6 +1,7 @@
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Terminal {
@@ -48,7 +49,19 @@ public class Terminal {
         }
     }
     //abdo ls and ls -r
-    public void ls(){
+    public void ls(String[] args){
+        Path currentPath = Paths.get("").toAbsolutePath();
+        File currentDirectory = new File(currentPath.toString());
+        File[] files = currentDirectory.listFiles();
+        if(args.length > 0 && "-r".equals(args[0])){
+            Arrays.sort(files, (f1, f2) -> f2.getName().compareTo(f1.getName()));
+        }else{
+            Arrays.sort(files);
+        }
+        for (File file : files) {
+                System.out.println(file.getName());
+        }
+        
 
     }
     //john
@@ -94,6 +107,9 @@ public class Terminal {
                 break;
             case "echo":
                 echo(args);
+                break;
+            case "ls":
+                ls(args);
                 break;
             case "exit":
                 System.exit(0);
