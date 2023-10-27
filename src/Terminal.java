@@ -26,7 +26,7 @@ public class Terminal {
 
             String homeDirectory = System.getProperty("user.home");
             System.setProperty("user.dir", homeDirectory);
-        } else if (args.length == 1) {
+        } else {
             if (args[0].equals("..")) {
 
                 String currentPath = System.getProperty("user.dir");
@@ -37,7 +37,6 @@ public class Terminal {
                     System.out.println("Already at the root directory");
                 }
             } else {
-
                 String newPath = args[0];
                 File file = new File(newPath);
                 if (file.exists() && file.isDirectory()) {
@@ -45,7 +44,9 @@ public class Terminal {
                     System.setProperty("user.dir", file.getPath()+"\\");
                 } else {
                     // Search for the directory if the complete path is not provided
+
                     File currentDirectory = new File(System.getProperty("user.dir"));
+
                     File[] matchingDirectories = currentDirectory.listFiles(
                             pathname -> pathname.isDirectory() && pathname.getName().equals(args[0])
                     );
@@ -56,15 +57,25 @@ public class Terminal {
                     }
                 }
             }
-        } else {
-            System.out.println("Invalid arguments for cd command");
         }
     }
+
     //abdo ls and ls -r
     public void ls(String[] args){}
     //john
-    public void mkdir(){
-
+    public static void mkdir(String[] directories) {
+        for (String dir : directories) {
+            File file = new File(dir);
+            if (file.exists()) {
+                System.out.println("Directory already exists: " + file.getAbsolutePath());
+            } else {
+                if (file.mkdirs()) {
+                    System.out.println("Directory created: " + file.getAbsolutePath());
+                } else {
+                    System.out.println("Failed to create directory: " + file.getAbsolutePath());
+                }
+            }
+        }
     }
     //abdo
     public void rmdir(){
@@ -108,6 +119,9 @@ public class Terminal {
                 break;
             case "ls":
                 ls(args);
+                break;
+            case "mkdir":
+                mkdir(args);
                 break;
             case "exit":
                 System.exit(0);
