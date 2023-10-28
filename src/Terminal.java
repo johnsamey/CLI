@@ -1,8 +1,12 @@
 import java.io.File;
+<<<<<<< Updated upstream
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+=======
+import java.io.IOException;
+>>>>>>> Stashed changes
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -10,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
+import java.nio.file.Files; 
 
 public class Terminal {
     private Parser parser;
@@ -63,9 +68,15 @@ public class Terminal {
     }
 
     //abdo ls and ls -r
+<<<<<<< Updated upstream
     public void ls(List<String> args){
         Path currentPath = Paths.get("").toAbsolutePath();
         File currentDirectory = new File(currentPath.toString());
+=======
+    public void ls(String[] args){
+        
+        File currentDirectory = new File(System.getProperty("user.dir"));
+>>>>>>> Stashed changes
         File[] files = currentDirectory.listFiles();
         if(args.size() > 0 && "-r".equals(args.get(0))){
             Arrays.sort(files, (f1, f2) -> f2.getName().compareTo(f1.getName()));
@@ -98,7 +109,28 @@ public class Terminal {
         }
     }
     //abdo
-    public void rmdir(){
+    public void rmdir(String[] args){
+        if (args.length == 1 && "*".equals(args[0])) {
+            File currentDirectory = new File(System.getProperty("user.dir"));
+            removeEmptyDirectories(currentDirectory);
+        } else {
+            System.out.println("Usage: rmdir *");
+        }
+
+    }
+    public void removeEmptyDirectories(File dir){
+        File[] subDirs=dir.listFiles(File::isDirectory);
+        if(subDirs!=null){
+            
+            for(File subDir:subDirs){
+                removeEmptyDirectories(subDir);
+                if(subDir.listFiles().length==0){
+                    subDir.delete();
+                }else{
+                    removeEmptyDirectories(subDir);
+                }
+            }
+        }
 
     }
     //abdo
@@ -208,6 +240,9 @@ public class Terminal {
                 break;
             case "exit":
                 System.exit(0);
+                break;
+            case "rmdir":
+                rmdir(args);
                 break;
             default:
                 System.out.println("Command not found: " + commandName);
