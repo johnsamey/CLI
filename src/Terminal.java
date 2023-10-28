@@ -1,8 +1,15 @@
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Scanner;
 
 public class Terminal {
     private Parser parser;
@@ -36,10 +43,10 @@ public class Terminal {
                 System.out.println("Already at the root directory");
             }
         } else {
-            StringBuilder targetDirectory= new StringBuilder(args.get(0));
+            StringBuilder targetDirectory = new StringBuilder(args.get(0));
             targetDirectory = new StringBuilder(args.get(0).replaceAll("^\"|\"$", ""));
-            if (args.size()>1) {
-                for (int i = 1;i< args.size();i++) {
+            if (args.size() > 1) {
+                for (int i = 1; i < args.size(); i++) {
                     targetDirectory.append(" ").append(args.get(i).replaceAll("^\"|\"$", ""));
                 }
             }
@@ -48,12 +55,11 @@ public class Terminal {
                 newDirectory = new File(targetDirectory.toString());
             }
             if (newDirectory.exists() && newDirectory.isDirectory()) {
-                System.setProperty("user.dir", newDirectory.getPath()+"\\");
+                System.setProperty("user.dir", newDirectory.getPath() + "\\");
             } else {
                 System.out.println("Directory not found");
             }
         }
-        System.out.println("Current Directory: " + System.getProperty("user.dir"));
     }
 
     //abdo ls and ls -r
@@ -71,7 +77,7 @@ public class Terminal {
         }
     }
     //john
-    public static void mkdir(List<String> directories) {
+    public void mkdir(List<String> directories) {
         for (String dir : directories) {
             String targetDirectory = dir.replaceAll("^\"|\"$", "");
             File file;
@@ -95,17 +101,74 @@ public class Terminal {
     public void rmdir(){
 
     }
-    //john
+    //abdo
     public void touch(){
 
     }
-    //john cp and cp -r
-    public void cp(){
 
+    //john cp and cp -r
+    public void cp(List<String> Files) {
+        if (Files.size() == 2 ) {
+            File sourceFile = new File(System.getProperty("user.dir") + File.separator + Files.get(0));
+            File destinationFile = new File(System.getProperty("user.dir") + File.separator + Files.get(1));
+
+            try (Scanner scanner = new Scanner(sourceFile);
+                 PrintWriter printWriter = new PrintWriter(destinationFile)) {
+                while (scanner.hasNextLine()) {
+                    String line = scanner.nextLine();
+                    printWriter.println(line);
+                }
+                System.out.println("File copied successfully.");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        } else if (Files.size() == 3 && Objects.equals(Files.get(0), "-r")){
+            String sourceDirName = Files.get(1);
+            String destinationDirName = Files.get(2);
+            cpR(sourceDirName, destinationDirName);
+        } else {
+            System.out.println("Two many argument");
+        }
+    }
+    public static void cpR(String sourceDirName, String destinationDirName) {
+        File sourceDir = new File( System.getProperty("user.dir")+File.separator +sourceDirName);
+        File destinationDir = new File( System.getProperty("user.dir")+File.separator +destinationDirName);
+
+        if (!destinationDir.exists()) {
+            destinationDir.mkdir();
+        }
+
+        File[] files = sourceDir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                String sourcePath = sourceDir.toString();
+                String destinationPath = destinationDir.toString();
+                if (file.isDirectory()) {
+                    cpR(sourcePath, destinationPath);
+                } else {
+                    try {
+                        Path source = Path.of(sourcePath);
+                        Path destination = Path.of(destinationPath);
+                        Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
     //john
-    public void rm(){
-
+    public void rm(String fileName) {
+        File file = new File(System.getProperty("user.dir") + File.separator + fileName);
+        if (file.exists() && file.isFile()) {
+            if (file.delete()) {
+                System.out.println("File removed: " + file.getAbsolutePath());
+            } else {
+                System.out.println("Failed to remove file: " + file.getAbsolutePath());
+            }
+        } else {
+            System.out.println("File does not exist or is not a regular file: " + file.getAbsolutePath());
+        }
     }
     //abdo
     public void cat(){
@@ -136,6 +199,12 @@ public class Terminal {
                 break;
             case "mkdir":
                 mkdir(args);
+                break;
+            case "rm":
+                rm(args.get(0));
+                break;
+            case "cp":
+                cp(args);
                 break;
             case "exit":
                 System.exit(0);
