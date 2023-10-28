@@ -2,7 +2,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Scanner;
+import java.util.List;
 
 public class Terminal {
     private Parser parser;
@@ -13,7 +13,7 @@ public class Terminal {
     public Parser getParser() {
         return parser;
     }
-    public void echo(String[] args) {
+    public void echo(List<String> args) {
         System.out.println(String.join(" ", args));
     }
     public void pwd() {
@@ -21,14 +21,14 @@ public class Terminal {
     }
 
     //john
-    public void cd(String[] args) {
-        if (args.length == 0) {
+    public void cd(List<String> args) {
+        if (args.size() == 0) {
             System.setProperty("user.dir", System.getProperty("user.home"));
             return;
         }
 
         String directoryPath = System.getProperty("user.dir");
-        if (args[0].equals("..")) {
+        if (args.get(0).equals("..")) {
             File parentDirectory = new File(directoryPath).getParentFile();
             if (parentDirectory != null) {
                 System.setProperty("user.dir", parentDirectory.getPath());
@@ -36,18 +36,17 @@ public class Terminal {
                 System.out.println("Already at the root directory");
             }
         } else {
-            StringBuilder targetDirectory= new StringBuilder(args[0]);
-            targetDirectory = new StringBuilder(args[0].replaceAll("^\"|\"$", ""));
-            if (args.length>1) {
-                for (int i = 1;i< args.length;i++) {
-                    targetDirectory.append(" ").append(args[i].replaceAll("^\"|\"$", ""));
+            StringBuilder targetDirectory= new StringBuilder(args.get(0));
+            targetDirectory = new StringBuilder(args.get(0).replaceAll("^\"|\"$", ""));
+            if (args.size()>1) {
+                for (int i = 1;i< args.size();i++) {
+                    targetDirectory.append(" ").append(args.get(i).replaceAll("^\"|\"$", ""));
                 }
             }
             File newDirectory = new File(directoryPath, targetDirectory.toString());
             if (!newDirectory.exists()) {
                 newDirectory = new File(targetDirectory.toString());
             }
-
             if (newDirectory.exists() && newDirectory.isDirectory()) {
                 System.setProperty("user.dir", newDirectory.getPath()+"\\");
             } else {
@@ -58,11 +57,11 @@ public class Terminal {
     }
 
     //abdo ls and ls -r
-    public void ls(String[] args){
+    public void ls(List<String> args){
         Path currentPath = Paths.get("").toAbsolutePath();
         File currentDirectory = new File(currentPath.toString());
         File[] files = currentDirectory.listFiles();
-        if(args.length > 0 && "-r".equals(args[0])){
+        if(args.size() > 0 && "-r".equals(args.get(0))){
             Arrays.sort(files, (f1, f2) -> f2.getName().compareTo(f1.getName()));
         }else{
             Arrays.sort(files);
@@ -72,9 +71,15 @@ public class Terminal {
         }
     }
     //john
-    public static void mkdir(String[] directories) {
+    public static void mkdir(List<String> directories) {
         for (String dir : directories) {
-            File file = new File(System.getProperty("user.dir") + File.separator + dir);
+            String targetDirectory = dir.replaceAll("^\"|\"$", "");
+            File file;
+            if (targetDirectory.contains(File.separator)) {
+                file = new File(targetDirectory);
+            } else {
+                file = new File(System.getProperty("user.dir") + File.separator + targetDirectory);
+            }
             if (file.exists()) {
                 System.out.println("Directory already exists: " + file.getAbsolutePath());
             } else {
@@ -114,7 +119,7 @@ public class Terminal {
 
     public void chooseCommandAction() {
         String commandName = parser.getCommandName();
-        String[] args = parser.getArgs();
+        List<String> args = parser.getArgs();
 
         switch (commandName) {
             case "pwd":
