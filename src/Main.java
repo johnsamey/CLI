@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.Locale;
 import java.util.Scanner;
 
@@ -6,8 +7,8 @@ public class Main {
         Terminal terminal = new Terminal();
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            String currentDirectory = System.getProperty("user.dir");
-            System.out.print(currentDirectory + "> ");
+            File currentDirectory = new File(System.getProperty("user.dir"));
+            System.out.print(currentDirectory.getAbsolutePath() + "> ");
             String input = scanner.nextLine();
             if (input.equals("exit")) {
                 break;
