@@ -23,67 +23,39 @@ public class Terminal {
     //john
     public void cd(String[] args) {
         if (args.length == 0) {
-            String homeDirectory = System.getProperty("user.home");
-            System.setProperty("user.dir", homeDirectory);
-        } else if (args.length == 1) { // length 1
-            if (args[0].equals("..")) {
+            System.setProperty("user.dir", System.getProperty("user.home"));
+            return;
+        }
 
-                String currentPath = System.getProperty("user.dir");
-                String parent = new File(currentPath).getParent();
-                if (parent != null) {
-                    System.setProperty("user.dir", parent);
-                } else {
-                    System.out.println("Already at the root directory");
+        String directoryPath = System.getProperty("user.dir");
+        if (args[0].equals("..")) {
+            File parentDirectory = new File(directoryPath).getParentFile();
+            if (parentDirectory != null) {
+                System.setProperty("user.dir", parentDirectory.getPath());
+            } else {
+                System.out.println("Already at the root directory");
+            }
+        } else {
+            StringBuilder targetDirectory= new StringBuilder(args[0]);
+            targetDirectory = new StringBuilder(args[0].replaceAll("^\"|\"$", ""));
+            if (args.length>1) {
+                for (int i = 1;i< args.length;i++) {
+                    targetDirectory.append(" ").append(args[i].replaceAll("^\"|\"$", ""));
                 }
             }
-            else {
-                String newPath = args[0];
-                File file = new File(newPath);
-                if (file.exists() && file.isDirectory()) {
-                    System.out.println(file.getPath()+"\\");
-                    System.setProperty("user.dir", file.getPath()+"\\");
-                }
-                else {
-                    File currentDirectory = new File(System.getProperty("user.dir"));
+            File newDirectory = new File(directoryPath, targetDirectory.toString());
+            if (!newDirectory.exists()) {
+                newDirectory = new File(targetDirectory.toString());
+            }
 
-                    File[] matchingDirectories = currentDirectory.listFiles(
-                            pathname -> pathname.isDirectory() && pathname.getName().equals(args[0])
-                    );
-                    if (matchingDirectories != null && matchingDirectories.length > 0) {
-                        System.setProperty("user.dir", matchingDirectories[0].getPath() + "\\");
-                    } else {
-                        System.out.println("Directory not found");
-                    }
-                }
+            if (newDirectory.exists() && newDirectory.isDirectory()) {
+                System.setProperty("user.dir", newDirectory.getPath()+"\\");
+            } else {
+                System.out.println("Directory not found");
             }
         }
-        else{
-                String arg = args[0];
-                if (arg.charAt(0) == '\"' || arg.charAt(arg.length() - 1) == '\"') {
-                    String name = args[0];
-                    for (int i = 1; i < args.length; i++) {
-                        name += " " + args[i];
-                    }
-
-                    File currentDirectory = new File(System.getProperty("user.dir"));
-                    String finalName = name.substring(1, name.length() - 1);
-
-                    File[] matchingDirectories = currentDirectory.listFiles(
-                            pathname -> pathname.isDirectory() && pathname.getName().equals(finalName)
-                    );
-
-                    if (matchingDirectories != null && matchingDirectories.length > 0) {
-                        System.setProperty("user.dir", matchingDirectories[0].getPath() + "\\");
-                    } else {
-                        System.out.println("Directory not found");
-                    }
-                }
-                else{
-                    System.out.println("Too many arguments");
-                }
-        }
+        System.out.println("Current Directory: " + System.getProperty("user.dir"));
     }
-
 
     //abdo ls and ls -r
     public void ls(String[] args){
@@ -102,16 +74,12 @@ public class Terminal {
     //john
     public static void mkdir(String[] directories) {
         for (String dir : directories) {
-            File newFile = new File(dir);
-//            File currentDirectory = new File(System);
-            File file = newFile.getAbsoluteFile();
+            File file = new File(System.getProperty("user.dir") + File.separator + dir);
             if (file.exists()) {
                 System.out.println("Directory already exists: " + file.getAbsolutePath());
             } else {
                 if (file.mkdirs()) {
-                    System.out.println(System.getProperty("user.dir"));
                     System.out.println("Directory created: " + file.getAbsolutePath());
-                    System.setProperty("user.dir",file.getPath()+"\\");
                 } else {
                     System.out.println("Failed to create directory: " + file.getAbsolutePath());
                 }
