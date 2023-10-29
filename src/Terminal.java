@@ -12,6 +12,7 @@ import java.util.Scanner;
 
 public class Terminal {
     private Parser parser;
+    // private List<String> commandHistory;
 
     public Terminal() {
         this.parser = new Parser();
@@ -138,7 +139,28 @@ public class Terminal {
     }
     
     //abdo
-    public void touch(){
+    public void touch(List<String> args) throws IOException{
+        if(args.size()==1){
+            String path = args.get(0);
+            File file;
+            if (new File(path).isAbsolute()) {
+                file = new File(path);
+            } else {
+                file = new File(System.getProperty("user.dir") + File.separator + path);
+            }
+            if (file.exists()) {
+                System.out.println("File already exists: " + file.getAbsolutePath());
+            } else {
+                
+                    if (file.createNewFile()) {
+                        System.out.println("File created: " + file.getAbsolutePath());
+                    } else {
+                        System.out.println("Failed to create file: " + file.getAbsolutePath());
+                    }
+                }
+        }else{
+            System.out.println("Incorrect number of arguments");
+        }
 
     }
 
@@ -207,16 +229,93 @@ public class Terminal {
         }
     }
     //abdo
-    public void cat(){
+    public void cat(List<String> args) throws FileNotFoundException {
+
+        if (args.size() < 1) {
+            System.out.println("Insufficient number of arguments");
+            return;
+        }
+
+        String pathOne = args.get(0);
+        File fileOne = new File(pathOne);
+
+        if (!fileOne.exists()) {
+            System.out.println("File does not exist: " + fileOne.getAbsolutePath());
+            return;
+        }
+        
+
+        System.out.print(readFile(fileOne));
+
+        if (args.size() == 2) {
+            String pathTwo = args.get(1);
+            File fileTwo = new File(pathTwo);
+
+            if (fileTwo.exists()) {
+
+                System.out.print(readFile(fileTwo));
+            } else {
+                System.out.println("Second file does not exist: " + fileTwo.getAbsolutePath());
+            }
+        }
+        System.out.println();
 
     }
+
+    private String readFile(File file) throws FileNotFoundException {
+        String output ="";
+        Scanner myReader = new Scanner(file);
+        while (myReader.hasNextLine()) {
+            output+=myReader.nextLine();
+            if(myReader.hasNextLine()){
+                output+="\n";
+            }
+        }
+        myReader.close();
+        return output;
+    }
+    
     //abdo
-    public void wc(){
+    public void wc(List<String> args){
+       if (args.size() != 1) {
+            System.out.println("Incorrect number of arguments");
+            return;
+        }
+        File currentDirectory = new File(System.getProperty("user.dir"));
+        File filetoRead = new File(currentDirectory.getAbsolutePath() + File.separator + args.get(0));
+
+
+
+        if (!filetoRead.exists()) {
+            System.out.println("File does not exist: " + filetoRead.getAbsolutePath());
+            return;
+        }
+
+        try {
+            Printcount(filetoRead);
+        } catch (FileNotFoundException e) {
+            System.out.println("Error reading the file: " + e.getMessage());
+        }
 
     }
+    private void Printcount(File file)throws FileNotFoundException{
+        int lines = 0;
+        int words = 0;
+        int characters = 0;
 
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                lines++;
+                words += line.split("\\s+").length;
+                characters += line.length();
+            }
+        }
 
-    public void chooseCommandAction() {
+        System.out.println(lines + " " + words + " " + characters + " " + file.getName());
+    }
+
+    public void chooseCommandAction() throws IOException {
         String commandName = parser.getCommandName();
         List<String> args = parser.getArgs();
 
@@ -248,9 +347,20 @@ public class Terminal {
             case "rmdir":
                 rmdir(args);
                 break;
+            case "touch":
+                touch(args);
+                break;
+            case "cat":
+                cat(args);
+                break;
+            case "wc":
+                wc(args);
+                break;
             default:
                 System.out.println("Command not found: " + commandName);
                 break;
+            
+            
         }
     }
 

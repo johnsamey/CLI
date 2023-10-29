@@ -1,9 +1,9 @@
 import java.io.File;
-import java.util.Locale;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Terminal terminal = new Terminal();
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -18,6 +18,9 @@ public class Main {
                 continue;
             }
             terminal.chooseCommandAction();
+            // commandHistory.add(input);
+
         }
+        scanner.close();
     }
 }

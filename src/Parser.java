@@ -4,6 +4,8 @@ import java.util.List;
 public class Parser {
     private String commandName;
     private List<String> args;
+    
+
 
     public boolean parse(String input) {
         String[] tokens = input.split("(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$) ");
