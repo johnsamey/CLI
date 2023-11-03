@@ -1,6 +1,7 @@
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Scanner;
+import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,11 +9,42 @@ import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Scanner;
+import java.util.ArrayList;
 
-public class Terminal {
+
+ class Parser {
+    private String commandName;
+    private List<String> args;
+    
+
+
+    public boolean parse(String input) {
+        String[] tokens = input.split("(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$) ");
+        if (tokens.length < 1) {
+            return false;
+        }
+        commandName = tokens[0].replaceAll("^\"|\"$", "").toLowerCase();
+        args = new ArrayList<>();
+        for (int i = 1; i < tokens.length; i++) {
+            args.add(tokens[i].replaceAll("^\"|\"$", ""));
+        }
+        return true;
+    }
+
+    public String getCommandName() {
+
+        return commandName;
+    }
+
+    public List<String> getArgs() {
+
+        return args;
+    }
+}
+
+ class Terminal {
     private Parser parser;
-    // private List<String> commandHistory;
+    private static List<String> commandHistory=new ArrayList<>();
 
     public Terminal() {
         this.parser = new Parser();
@@ -27,7 +59,6 @@ public class Terminal {
         System.out.println("Current directory: " + System.getProperty("user.dir"));
     }
 
-    //john
     public void cd(List<String> args) {
         if (args.size() == 0) {
             System.setProperty("user.dir", System.getProperty("user.home"));
@@ -62,7 +93,6 @@ public class Terminal {
         }
     }
 
-    //abdo ls and ls -r
     public void ls(List<String> args){
         
         File currentDirectory = new File(System.getProperty("user.dir"));
@@ -76,7 +106,7 @@ public class Terminal {
                 System.out.println(file.getName());
         }
     }
-    //john
+    
     public void mkdir(List<String> directories) {
         for (String dir : directories) {
             String targetDirectory = dir.replaceAll("^\"|\"$", "");
@@ -97,7 +127,6 @@ public class Terminal {
             }
         }
     }
-    //abdo
     public void rmdir(List<String> args) {
         if (args.size() == 1) {
             if ("*".equals(args.get(0))) {
@@ -138,7 +167,6 @@ public class Terminal {
         }
     }
     
-    //abdo
     public void touch(List<String> args) throws IOException{
         if(args.size()==1){
             String path = args.get(0);
@@ -164,7 +192,6 @@ public class Terminal {
 
     }
 
-    //john cp and cp -r
     public void cp(List<String> Files) {
         if (Files.size() == 2 ) {
             File sourceFile = new File(System.getProperty("user.dir") + File.separator + Files.get(0));
@@ -215,7 +242,6 @@ public class Terminal {
             }
         }
     }
-    //john
     public void rm(String fileName) {
         File file = new File(System.getProperty("user.dir") + File.separator + fileName);
         if (file.exists() && file.isFile()) {
@@ -228,16 +254,16 @@ public class Terminal {
             System.out.println("File does not exist or is not a regular file: " + file.getAbsolutePath());
         }
     }
-    //abdo
+    
     public void cat(List<String> args) throws FileNotFoundException {
 
         if (args.size() < 1) {
             System.out.println("Insufficient number of arguments");
             return;
         }
-
-        String pathOne = args.get(0);
-        File fileOne = new File(pathOne);
+        
+        File fileOne = new File(System.getProperty("user.dir") + File.separator + args.get(0));;
+        
 
         if (!fileOne.exists()) {
             System.out.println("File does not exist: " + fileOne.getAbsolutePath());
@@ -248,13 +274,13 @@ public class Terminal {
         System.out.print(readFile(fileOne));
 
         if (args.size() == 2) {
-            String pathTwo = args.get(1);
-            File fileTwo = new File(pathTwo);
+            File fileTwo =new File(System.getProperty("user.dir") + File.separator + args.get(1));
 
             if (fileTwo.exists()) {
 
                 System.out.print(readFile(fileTwo));
             } else {
+                System.out.println();
                 System.out.println("Second file does not exist: " + fileTwo.getAbsolutePath());
             }
         }
@@ -275,7 +301,6 @@ public class Terminal {
         return output;
     }
     
-    //abdo
     public void wc(List<String> args){
        if (args.size() != 1) {
             System.out.println("Incorrect number of arguments");
@@ -363,6 +388,31 @@ public class Terminal {
             
         }
     }
+    
+    
+    public static void main(String[] args)  {
+        Terminal terminal = new Terminal();
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            File currentDirectory = new File(System.getProperty("user.dir"));
+            System.out.print(currentDirectory.getPath() + "> ");
+            String input = scanner.nextLine();
+            if (input.equals("exit")) {
+                break;
+            }
+            if (!terminal.getParser().parse(input)) {
+                System.out.println("Invalid command");
+                continue;
+            }
+            try {
+                terminal.chooseCommandAction();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            commandHistory.add(input);
 
-
+        }
+        scanner.close();
+    }
 }
+
