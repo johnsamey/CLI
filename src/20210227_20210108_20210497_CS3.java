@@ -42,7 +42,7 @@ import java.util.ArrayList;
     }
 }
 
- class Terminal {
+  class Terminal {
     private Parser parser;
     private static List<String> commandHistory=new ArrayList<>();
 
@@ -167,7 +167,7 @@ import java.util.ArrayList;
         }
     }
     
-    public void touch(List<String> args) throws IOException{
+    public void touch(List<String> args)  {
         if(args.size()==1){
             String path = args.get(0);
             File file;
@@ -180,10 +180,14 @@ import java.util.ArrayList;
                 System.out.println("File already exists: " + file.getAbsolutePath());
             } else {
                 
-                    if (file.createNewFile()) {
-                        System.out.println("File created: " + file.getAbsolutePath());
-                    } else {
-                        System.out.println("Failed to create file: " + file.getAbsolutePath());
+                    try {
+                        if (file.createNewFile()) {
+                            System.out.println("File created: " + file.getAbsolutePath());
+                        } else {
+                            System.out.println("Failed to create file: " + file.getAbsolutePath());
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
         }else{
@@ -339,6 +343,12 @@ import java.util.ArrayList;
 
         System.out.println(lines + " " + words + " " + characters + " " + file.getName());
     }
+    
+    public void history(){
+        for (String command : commandHistory) {
+            System.out.println(command);
+        }
+    }
 
     public void chooseCommandAction() throws IOException {
         String commandName = parser.getCommandName();
@@ -381,6 +391,9 @@ import java.util.ArrayList;
             case "wc":
                 wc(args);
                 break;
+            case "history":
+                history();
+                break;
             default:
                 System.out.println("Command not found: " + commandName);
                 break;
@@ -388,6 +401,7 @@ import java.util.ArrayList;
             
         }
     }
+    
     
     
     public static void main(String[] args)  {
