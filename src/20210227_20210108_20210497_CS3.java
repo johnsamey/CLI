@@ -11,7 +11,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.ArrayList;
 
-
+//          pwd
+//        mkdir dir1 dir2
+//        touch f1.txt
+//        touch <current path>/f2.txt [full path]
+//        ls > f1.txt
+//        cat f1.txt
+//        rmdir dir1
+//        cp f1.txt f3.txt
+//        cd dir2
+//        touch f3.txt
+//        ls
  class Parser {
     private String commandName;
     private List<String> args;
@@ -47,15 +57,19 @@ import java.util.ArrayList;
     private static List<String> commandHistory=new ArrayList<>();
 
     public Terminal() {
+
         this.parser = new Parser();
     }
     public Parser getParser() {
+
         return parser;
     }
     public void echo(List<String> args) {
+
         System.out.println(String.join(" ", args));
     }
     public void pwd() {
+
         System.out.println("Current directory: " + System.getProperty("user.dir"));
     }
 
@@ -219,34 +233,42 @@ import java.util.ArrayList;
             System.out.println("Two many argument");
         }
     }
-    public static void cpR(String sourceDirName, String destinationDirName) {
-        File sourceDir = new File( System.getProperty("user.dir")+File.separator +sourceDirName);
-        File destinationDir = new File( System.getProperty("user.dir")+File.separator +destinationDirName);
+      public void cpR(String sourceDirName, String destinationDirName) {
+          File sourceDir = new File(System.getProperty("user.dir") + File.separator + sourceDirName);
+          File destinationDir = new File(System.getProperty("user.dir") + File.separator + destinationDirName);
 
-        if (!destinationDir.exists()) {
-            destinationDir.mkdir();
-        }
+          if (!sourceDir.exists() || !sourceDir.isDirectory()) {
+              System.out.println("Source directory does not exist or is not a directory.");
+              return;
+          }
 
-        File[] files = sourceDir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                String sourcePath = sourceDir.toString();
-                String destinationPath = destinationDir.toString();
-                if (file.isDirectory()) {
-                    cpR(sourcePath, destinationPath);
-                } else {
-                    try {
-                        Path source = Path.of(sourcePath);
-                        Path destination = Path.of(destinationPath);
-                        Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
-    public void rm(String fileName) {
+          if (!destinationDir.exists()) {
+              if (!destinationDir.mkdir()) {
+                  System.out.println("Failed to create destination directory.");
+                  return;
+              }
+          }
+
+          File[] files = sourceDir.listFiles();
+          if (files != null) {
+              for (File file : files) {
+                  if (file.isDirectory()) {
+                      File newDir = new File(destinationDir.getAbsolutePath() + File.separator + file.getName());
+                      cpR(file.getPath(), newDir.getPath());
+                  } else {
+                      File newFile = new File(destinationDir.getAbsolutePath() + File.separator + file.getName());
+                      try {
+                          Files.copy(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                      } catch (IOException e) {
+                          System.out.println("Failed to copy file: " + e.getMessage());
+                      }
+                  }
+              }
+          }
+
+          System.out.println("Directory copied successfully.");
+      }
+      public void rm(String fileName) {
         File file = new File(System.getProperty("user.dir") + File.separator + fileName);
         if (file.exists() && file.isFile()) {
             if (file.delete()) {
